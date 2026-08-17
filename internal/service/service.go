@@ -316,10 +316,10 @@ func (s *Service) ActiveCount() int {
 func (s *Service) FindBooking(bookingID string) (*model.Booking, error) {
 	b, err := s.repo.FindBooking(bookingID)
 	if err != nil {
-		if errors.Is(err, repository.ErrNotFound) {
-			return nil, fmt.Errorf("booking %s: %w", bookingID, ErrNotFound)
+		if errors.Is(err, ErrNotFound) {
+			return nil, fmt.Errorf("booking %s: %v", bookingID, ErrNotFound)
 		}
-		return nil, fmt.Errorf("lookup booking %s: %w", bookingID, err)
+		return nil, fmt.Errorf("lookup booking %s: %v", bookingID, err)
 	}
 	return b, nil
 }

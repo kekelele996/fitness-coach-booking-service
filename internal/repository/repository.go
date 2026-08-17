@@ -58,7 +58,7 @@ func (r *Repository) FindCoach(id string) (*model.Coach, error) {
 	c, err := r.store.GetCoach(id)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
-			return nil, fmt.Errorf("coach %s: %w", id, ErrCoachNotFound)
+			return nil, fmt.Errorf("coach %s: %v", id, ErrCoachNotFound)
 		}
 		return nil, fmt.Errorf("coach %s: %w", id, err)
 	}
@@ -109,7 +109,7 @@ func (r *Repository) FindBooking(id string) (*model.Booking, error) {
 	b, err := r.store.GetBooking(id)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
-			return nil, fmt.Errorf("booking %s: %w", id, ErrNotFound)
+			return nil, fmt.Errorf("booking %s: %v", id, ErrNotFound)
 		}
 		return nil, fmt.Errorf("booking %s: %w", id, err)
 	}
@@ -124,7 +124,7 @@ func (r *Repository) UpdateBooking(id string, fn func(*model.Booking)) (*model.B
 	b, err := r.store.UpdateBooking(id, fn)
 	if err != nil {
 		if errors.Is(err, store.ErrNotFound) {
-			return nil, fmt.Errorf("booking %s: %w", id, ErrNotFound)
+			return nil, fmt.Errorf("booking %s: %v", id, ErrNotFound)
 		}
 		return nil, fmt.Errorf("booking %s: %w", id, err)
 	}

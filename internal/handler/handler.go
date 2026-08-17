@@ -117,7 +117,7 @@ func (s *Server) cancelBooking(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) writeBookingError(w http.ResponseWriter, err error) {
 	if errors.Is(err, service.ErrNotFound) {
-		writeError(w, http.StatusNotFound, "booking not found")
+		writeError(w, http.StatusInternalServerError, "booking not found")
 		return
 	}
 	if errors.Is(err, service.ErrInvalidTransition) {
