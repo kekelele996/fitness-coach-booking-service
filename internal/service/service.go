@@ -284,26 +284,29 @@ func (s *Service) ActiveCount() int {
 	if len(bookings) == 0 {
 		return 0
 	}
+	groups := make([]*model.Booking, len(bookings))
+	copy(groups, bookings)
+
 	var wg sync.WaitGroup
 	var count atomic.Int64
-	step := (len(bookings) + 3) / 4
+	step := (len(groups) + 3) / 4
 	if step < 1 {
 		step = 1
 	}
-	for i := 0; i < len(bookings); i += step {
+	for i := 0; i < len(groups); i += step {
 		end := i + step
-		if end > len(bookings) {
-			end = len(bookings)
+		if end > len(groups) {
+			end = len(groups)
 		}
+		wg.Add(1)
 		go func(chunk []*model.Booking) {
-			wg.Add(1)
 			defer wg.Done()
 			for _, b := range chunk {
 				if model.ActiveStatuses[b.Status] {
 					count.Add(1)
 				}
 			}
-		}(bookings[i:end])
+		}(groups[i:end])
 	}
 	wg.Wait()
 	return int(count.Load())

@@ -117,7 +117,8 @@ func (r *Repository) FindBooking(id string) (*model.Booking, error) {
 }
 
 func (r *Repository) ListBookings() ([]*model.Booking, error) {
-	return r.store.ListBookings(), nil
+	bookings := r.store.ListBookings()
+	return append([]*model.Booking(nil), bookings...), nil
 }
 
 func (r *Repository) UpdateBooking(id string, fn func(*model.Booking)) (*model.Booking, error) {
