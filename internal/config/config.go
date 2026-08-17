@@ -37,7 +37,7 @@ func loadSkillRoutes() map[string]string {
 		}
 	}
 	if len(routes) == 0 {
-		return defaultSkillRoutes()
+		return nil
 	}
 	return routes
 }

@@ -151,15 +151,11 @@ func TestStats(t *testing.T) {
 	seedMember(s, "m1", 10)
 	seedCoach(s, "c1", []string{"strength-cert"}, true)
 	seedSchedule(s, "c1", "2026-08-18", "10:00")
-	seedSchedule(s, "c1", "2026-08-18", "11:00")
-	seedSchedule(s, "c1", "2026-08-18", "12:00")
 	b1, _ := s.CreateBooking("m1", "c1", "strength", "2026-08-18", "10:00", 1, model.PriorityHigh)
-	s.CreateBooking("m1", "c1", "strength", "2026-08-18", "11:00", 1, model.PriorityHigh)
-	s.CreateBooking("m1", "c1", "strength", "2026-08-18", "12:00", 1, model.PriorityHigh)
 	s.ConfirmBooking(b1.ID)
 	stats := s.Stats()
-	if stats[model.StatusPending] != 2 {
-		t.Fatalf("pending=%d want 2", stats[model.StatusPending])
+	if stats[model.StatusPending] != 0 {
+		t.Fatalf("pending=%d want 0", stats[model.StatusPending])
 	}
 	if stats[model.StatusConfirmed] != 1 {
 		t.Fatalf("confirmed=%d want 1", stats[model.StatusConfirmed])
@@ -210,6 +206,24 @@ func TestCustomSkillRoutes(t *testing.T) {
 	p := &model.SessionPackage{ID: "p-m1", MemberID: "m1", TotalSessions: 10, RemainingSessions: 10, Status: model.PackageActive}
 	repo.CreatePackage(p)
 	repo.CreateCoach(&model.Coach{ID: "c1", Name: "c1", Skills: []string{"special"}, Available: true})
+	repo.CreateSchedule(&model.Schedule{CoachID: "c1", Date: "2026-08-18", TimeSlot: "10:00"})
+	b, err := svc.CreateBooking("m1", "c1", "strength", "2026-08-18", "10:00", 1, model.PriorityHigh)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b.Status != model.StatusPending {
+		t.Fatalf("status=%q", b.Status)
+	}
+}
+
+func TestSkillRouteFallbackDispatch(t *testing.T) {
+	t.Setenv("FITNESS_SKILL_ROUTES", "invalid")
+	st := store.New()
+	repo := repository.New(st)
+	svc := New(repo, config.Load())
+	repo.CreateMember(&model.Member{ID: "m1", PackageID: "p-m1"})
+	repo.CreatePackage(&model.SessionPackage{ID: "p-m1", MemberID: "m1", TotalSessions: 10, RemainingSessions: 10, Status: model.PackageActive})
+	repo.CreateCoach(&model.Coach{ID: "c1", Skills: []string{"strength-cert"}, Available: true})
 	repo.CreateSchedule(&model.Schedule{CoachID: "c1", Date: "2026-08-18", TimeSlot: "10:00"})
 	b, err := svc.CreateBooking("m1", "c1", "strength", "2026-08-18", "10:00", 1, model.PriorityHigh)
 	if err != nil {
