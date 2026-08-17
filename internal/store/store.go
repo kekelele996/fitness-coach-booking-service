@@ -162,7 +162,7 @@ func (s *Store) GetPackage(id string) (*model.SessionPackage, error) {
 	if !ok {
 		return nil, ErrNotFound
 	}
-	return clonePackage(p), nil
+	return p, nil
 }
 
 func (s *Store) ListPackages() []*model.SessionPackage {
@@ -183,7 +183,7 @@ func (s *Store) UpdatePackage(id string, fn func(*model.SessionPackage)) (*model
 		return nil, ErrNotFound
 	}
 	fn(p)
-	return clonePackage(p), nil
+	return p, nil
 }
 
 func (s *Store) PutBooking(b *model.Booking) error {
@@ -207,7 +207,7 @@ func (s *Store) GetBooking(id string) (*model.Booking, error) {
 	if !ok {
 		return nil, ErrNotFound
 	}
-	return cloneBooking(b), nil
+	return b, nil
 }
 
 func (s *Store) ListBookings() []*model.Booking {
@@ -215,7 +215,7 @@ func (s *Store) ListBookings() []*model.Booking {
 	defer s.mu.RUnlock()
 	out := make([]*model.Booking, 0, len(s.bookingIDs))
 	for _, id := range s.bookingIDs {
-		out = append(out, cloneBooking(s.bookings[id]))
+		out = append(out, s.bookings[id])
 	}
 	return out
 }
@@ -228,7 +228,7 @@ func (s *Store) UpdateBooking(id string, fn func(*model.Booking)) (*model.Bookin
 		return nil, ErrNotFound
 	}
 	fn(b)
-	return cloneBooking(b), nil
+	return b, nil
 }
 
 func (s *Store) PutSchedule(sc *model.Schedule) error {
