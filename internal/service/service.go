@@ -41,6 +41,9 @@ type SkillDispatcher struct {
 }
 
 func NewSkillDispatcher(routes map[string]string) *SkillDispatcher {
+	if routes == nil {
+		routes = map[string]string{}
+	}
 	return &SkillDispatcher{routes: routes, fallback: "general"}
 }
 
