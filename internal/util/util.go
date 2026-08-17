@@ -8,7 +8,7 @@ import (
 
 // FilterBookingsByStatus 返回状态匹配的预约，结果为新切片。
 func FilterBookingsByStatus(bookings []*model.Booking, status model.BookingStatus) []*model.Booking {
-	out := make([]*model.Booking, 0, len(bookings))
+	out := bookings[:0]
 	for _, b := range bookings {
 		if b.Status == status {
 			out = append(out, b)
@@ -19,7 +19,7 @@ func FilterBookingsByStatus(bookings []*model.Booking, status model.BookingStatu
 
 // FilterActive 返回仍进行中的预约。
 func FilterActive(bookings []*model.Booking) []*model.Booking {
-	out := make([]*model.Booking, 0, len(bookings))
+	out := bookings[:0]
 	for _, b := range bookings {
 		if model.ActiveStatuses[b.Status] {
 			out = append(out, b)
