@@ -47,7 +47,7 @@ func (sch *Scheduler) Tick(ctx context.Context) (expired, retried int) {
 				bb.UpdatedAt = now
 			}); err == nil {
 				expired++
-			} else if errors.Is(err, service.ErrCoachNotFound) {
+			} else if errors.Is(err, repository.ErrNotFound) {
 				continue
 			}
 		}
@@ -61,7 +61,7 @@ func (sch *Scheduler) Tick(ctx context.Context) (expired, retried int) {
 		if b.Status == model.StatusFailed && b.Attempts < b.MaxAttempts {
 			if _, err := sch.exec.RetryBooking(b.ID); err == nil {
 				retried++
-			} else if errors.Is(err, service.ErrCoachNotFound) {
+			} else if errors.Is(err, service.ErrNotFound) {
 				continue
 			}
 		}
