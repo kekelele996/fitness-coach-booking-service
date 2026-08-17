@@ -58,12 +58,16 @@ func (sch *Scheduler) Tick(ctx context.Context) (expired, retried int) {
 		return expired, retried
 	}
 	for _, b := range bookings {
-		if b.Status == model.StatusFailed {
-			if _, err := sch.exec.RetryBooking(b.ID); err == nil {
-				retried++
-			} else if errors.Is(err, service.ErrNotFound) {
-				continue
-			}
+		if b.Status != model.StatusFailed {
+			continue
+		}
+		if b.Attempts >= b.MaxAttempts {
+			continue
+		}
+		if _, err := sch.exec.RetryBooking(b.ID); err == nil {
+			retried++
+		} else if errors.Is(err, service.ErrNotFound) {
+			continue
 		}
 	}
 	return expired, retried

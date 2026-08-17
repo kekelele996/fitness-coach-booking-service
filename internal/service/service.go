@@ -295,8 +295,8 @@ func (s *Service) ActiveCount() int {
 		if end > len(bookings) {
 			end = len(bookings)
 		}
+		wg.Add(1)
 		go func(chunk []*model.Booking) {
-			wg.Add(1)
 			defer wg.Done()
 			for _, b := range chunk {
 				if model.ActiveStatuses[b.Status] {
