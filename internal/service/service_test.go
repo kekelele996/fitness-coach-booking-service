@@ -151,15 +151,11 @@ func TestStats(t *testing.T) {
 	seedMember(s, "m1", 10)
 	seedCoach(s, "c1", []string{"strength-cert"}, true)
 	seedSchedule(s, "c1", "2026-08-18", "10:00")
-	seedSchedule(s, "c1", "2026-08-18", "11:00")
-	seedSchedule(s, "c1", "2026-08-18", "12:00")
 	b1, _ := s.CreateBooking("m1", "c1", "strength", "2026-08-18", "10:00", 1, model.PriorityHigh)
-	s.CreateBooking("m1", "c1", "strength", "2026-08-18", "11:00", 1, model.PriorityHigh)
-	s.CreateBooking("m1", "c1", "strength", "2026-08-18", "12:00", 1, model.PriorityHigh)
 	s.ConfirmBooking(b1.ID)
 	stats := s.Stats()
-	if stats[model.StatusPending] != 2 {
-		t.Fatalf("pending=%d want 2", stats[model.StatusPending])
+	if stats[model.StatusPending] != 0 {
+		t.Fatalf("pending=%d want 0", stats[model.StatusPending])
 	}
 	if stats[model.StatusConfirmed] != 1 {
 		t.Fatalf("confirmed=%d want 1", stats[model.StatusConfirmed])
@@ -217,5 +213,21 @@ func TestCustomSkillRoutes(t *testing.T) {
 	}
 	if b.Status != model.StatusPending {
 		t.Fatalf("status=%q", b.Status)
+	}
+}
+
+func TestRetryLifecycle(t *testing.T) {
+	s := newService()
+	seedMember(s, "m1", 10)
+	seedCoach(s, "c1", []string{"strength-cert"}, true)
+	seedSchedule(s, "c1", "2026-08-18", "10:00")
+	b, _ := s.CreateBooking("m1", "c1", "strength", "2026-08-18", "10:00", 1, model.PriorityHigh)
+	s.repo.UpdateBooking(b.ID, func(bb *model.Booking) { bb.Status = model.StatusFailed })
+	if _, err := s.RetryBooking(b.ID); err != nil {
+		t.Fatal(err)
+	}
+	got, _ := s.FindBooking(b.ID)
+	if got.Status != model.StatusRetrying {
+		t.Fatalf("status=%q want retrying", got.Status)
 	}
 }

@@ -21,7 +21,7 @@ func FilterBookingsByStatus(bookings []*model.Booking, status model.BookingStatu
 func FilterActive(bookings []*model.Booking) []*model.Booking {
 	out := make([]*model.Booking, 0, len(bookings))
 	for _, b := range bookings {
-		if model.ActiveStatuses[b.Status] {
+		if b.Status == model.StatusPending || b.Status == model.StatusConfirmed {
 			out = append(out, b)
 		}
 	}

@@ -29,7 +29,6 @@ const (
 var ActiveStatuses = map[BookingStatus]bool{
 	StatusPending:   true,
 	StatusConfirmed: true,
-	StatusRetrying:  true,
 }
 
 // PackageStatus 课时包状态。
@@ -96,7 +95,7 @@ var transitions = map[BookingStatus][]BookingStatus{
 	StatusPending:   {StatusConfirmed, StatusExpired, StatusFailed},
 	StatusConfirmed: {StatusCompleted, StatusCancelled, StatusFailed},
 	StatusFailed:    {StatusRetrying},
-	StatusRetrying:  {StatusConfirmed},
+	StatusRetrying:  {},
 	StatusCompleted: {},
 	StatusCancelled: {},
 	StatusExpired:   {},

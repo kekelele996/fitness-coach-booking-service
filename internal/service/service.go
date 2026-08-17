@@ -242,7 +242,7 @@ func (s *Service) RetryBooking(bookingID string) (*model.Booking, error) {
 		return nil, fmt.Errorf("booking %s from %s: %w", bookingID, b.Status, ErrInvalidTransition)
 	}
 	return s.repo.UpdateBooking(bookingID, func(bb *model.Booking) {
-		bb.Status = model.StatusRetrying
+		bb.Status = model.StatusFailed
 		bb.UpdatedAt = time.Now()
 	})
 }
